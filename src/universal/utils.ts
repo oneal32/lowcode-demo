@@ -154,9 +154,12 @@ export const preview = (scenarioName: string = 'index') => {
 };
 
 export const saveSchema = async (scenarioName: string = 'index') => {
-  setProjectSchemaToLocalStorage(scenarioName);
+  // setProjectSchemaToLocalStorage(scenarioName);
 
-  await setPackgesToLocalStorage(scenarioName);
+  // await setPackgesToLocalStorage(scenarioName);
+
+  setProjectDataToServer(scenarioName);
+
   // window.localStorage.setItem(
   //   'projectSchema',
   //   JSON.stringify(project.exportSchema(TransformStage.Save))
@@ -238,6 +241,20 @@ export const getProjectSchemaFromLocalStorage = (scenarioName: string) => {
   return JSON.parse(window.localStorage.getItem(getLSName(scenarioName)) || '{}');
 }
 
+
+const setProjectDataToServer = async (scenarioName: string) =>{
+  if (!scenarioName) {
+    console.error('scenarioName is required!');
+    return;
+  }
+
+  const packages = await filterPackages(material.getAssets().packages);
+  // TODO 修改为自己的服务器
+  request("http://localhost:8089/savePreviewData",'POST', `{"scenarioName":"${scenarioName}", "schema":"${btoa(encodeURI(JSON.stringify(project.exportSchema(TransformStage.Save))))}", "packages": "${btoa(encodeURI(JSON.stringify(packages)))}"}`,new Headers({
+    'Content-Type': 'application/json'
+}))
+}
+
 const setProjectSchemaToLocalStorage = (scenarioName: string) => {
   if (!scenarioName) {
     console.error('scenarioName is required!');
@@ -253,12 +270,21 @@ const setPackgesToLocalStorage = async (scenarioName: string) => {
   if (!scenarioName) {
     console.error('scenarioName is required!');
     return;
-  }
+  }                                    
   const packages = await filterPackages(material.getAssets().packages);
   window.localStorage.setItem(
     getLSName(scenarioName, 'packages'),
     JSON.stringify(packages),
   );
+}
+
+
+export const getProjectDataFromServer = async (scenarioName: string) => {
+  if (!scenarioName) {
+    console.error('scenarioName is required!');
+    return;
+  }
+  return await request("http://localhost:8089/getPreviewData?scenarioName="+ scenarioName);
 }
 
 export const getPackagesFromLocalStorage = (scenarioName: string) => {
