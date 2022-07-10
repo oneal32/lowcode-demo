@@ -250,9 +250,14 @@ const setProjectDataToServer = async (scenarioName: string) =>{
 
   const packages = await filterPackages(material.getAssets().packages);
   // TODO 修改为自己的服务器
-  request("http://localhost:8089/savePreviewData",'POST', `{"scenarioName":"${scenarioName}", "schema":"${btoa(encodeURI(JSON.stringify(project.exportSchema(TransformStage.Save))))}", "packages": "${btoa(encodeURI(JSON.stringify(packages)))}"}`,new Headers({
-    'Content-Type': 'application/json'
-}))
+//   request("http://localhost:8089/savePreviewData",'POST', `{"scenarioName":"${scenarioName}", "schema":"${btoa(encodeURI(JSON.stringify(project.exportSchema(TransformStage.Save))))}", "packages": "${btoa(encodeURI(JSON.stringify(packages)))}"}`,new Headers({
+//     'Content-Type': 'application/json'
+// }))
+
+// 部署到服务器用
+request("/savePreviewData",'POST', `{"scenarioName":"${scenarioName}", "schema":"${btoa(encodeURI(JSON.stringify(project.exportSchema(TransformStage.Save))))}", "packages": "${btoa(encodeURI(JSON.stringify(packages)))}"}`,new Headers({
+  'Content-Type': 'application/json'
+}));
 }
 
 const setProjectSchemaToLocalStorage = (scenarioName: string) => {
@@ -284,7 +289,9 @@ export const getProjectDataFromServer = async (scenarioName: string) => {
     console.error('scenarioName is required!');
     return;
   }
-  return await request("http://localhost:8089/getPreviewData?scenarioName="+ scenarioName);
+  // return await request("http://localhost:8089/getPreviewData?scenarioName="+ scenarioName);
+  //TODO 部署到服务器用
+  return await request("/getPreviewData?scenarioName="+ scenarioName);
 }
 
 export const getPackagesFromLocalStorage = (scenarioName: string) => {
